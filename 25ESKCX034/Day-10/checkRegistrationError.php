@@ -1,44 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Form</title>
-    <link rel="stylesheet" href="formstylesheets.css"/>
+<?php
+include("db_connect.php");
+$error = "";
 
-</head>
-<body>
-        <form action="registration.php" method="post" class="background" id="frmRegister">
-            <h1 style="color: #1E3A8A;">Registration Form</h1>
-            <p>Submit this form for Online Registration</p>
-            <label>
-                 Full Name:
-                 <br>
-            <input type="text" id="txtname" name="fullname" required placeholder="Enter your Name"/>
-            </label>
-            <br><br>
-            <label>
-                Email:
-                <br>
-            <input type="email" id="txtEmail" name="email" required placeholder="Enter your Email"/>
-            </label>
-            <br><br>
-            <label>
-                Phone No:
-            </label>
-            <label for="dtDob" class="dtDOB">Birth Date:</label>
-            <br>
-            <input type="text" id="txtphone" name="phonenumber" required placeholder="Enter your number"/>
-            <input type="date" id="dtDob" name="dtDob"/>
-            <br><br>
-            <label for="pwdPassword">Password: </label>
-            <input type="password" id="pwdPassword" name="pwdPassword" placeholder="Enter your password"/>
-            <br><br>
-            <label for="pwdConfirmPassword">Confirm Password:</label>
-            <input type="password" id="pwdConfirmPassword" name="pwdConfirmPassword" placeholder="Confirm your password"/>
-            <br><br>
-            <input type="submit" id="btnsubmit"/>
-        </form>
+if($_SERVER["REQUEST_METHOD"]=="POST"){
+
+$name = mysqli_real_escape_string($conn, $_POST["name"]);
+$email = mysqli_real_escape_string($conn, $_POST["email"]);
+$password =  mysqli_real_escape_string($conn, $_POST["password"]);
+$confirmpassword =  mysqli_real_escape_string($conn, $_POST["confirmpassword"]);
+
+
+
+if( $name== "" || $email == "" || $password == "" || $confirmpassword == ""  ){
+    $error = "All fields are required.";
+    echo $error;
+}else if(strlen($password) < 8){
+    echo "Password must be at least 8 characters long.";
+}
+
+else if(!preg_match('/[A-Z]/', $password)){
+    echo "Password must contain at least one uppercase letter.";
+}
+
+else if(!preg_match('/[a-z]/', $password)){
+    echo "Password must contain at least one lowercase letter.";
+}
+
+else if(!preg_match('/[0-9]/', $password)){
+    echo "Password must contain at least one number.";
+}
+
+else if($password != $confirmpassword){
+  
+    echo "Passwords do not match.";
+}
+else{
+    $insertQuery = "Insert into user(name,email,password) values('$name','$email','$password')";
+
+    $result=mysqli_query($conn,$insertQuery);
+
+    if($result){
+        header("Location: success.php");
+    }else{
+        echo "ERROR occured while storing data";
+        echo "ERROR:" . mysqli_error($conn);
+        exit();
+        }
+        
     
-</body>
-</html>
+}   
+}
+?>
